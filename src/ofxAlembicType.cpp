@@ -416,7 +416,22 @@ void PolyMesh::set(IPolyMeshSchema &schema, float time)
 		{
 			if (UV.isIndexed())
 			{
-				ofLogError("ofxAlembic::PolyMesh") << "indexed uv is not supported";
+				V2fArraySamplePtr uv_ptr = UV.getExpandedValue(ss).getVals();
+				
+				if (numIndices == uv_ptr->size())
+				{
+					for (int i = 0; i < m_triangles.size(); i++)
+					{
+						Tri &t = m_triangles[i];
+						mesh.addTexCoord( toOf( (*uv_ptr)[t[0]] ) );
+						mesh.addTexCoord( toOf( (*uv_ptr)[t[1]] ) );
+						mesh.addTexCoord( toOf( (*uv_ptr)[t[2]] ) );
+					}
+				}
+				else
+				{
+					ofLogError("ofxAlembic::PolyMesh") << "indexed uv is not supported";
+				}
 			}
 			else
 			{
