@@ -382,8 +382,21 @@ void PolyMesh::set(IPolyMeshSchema &schema, float time)
 		{
 			if (N.isIndexed())
 			{
-				ofLogError("ofxAlembic::PolyMesh") << "indexed normal is not supported";
-			}
+                N3fArraySamplePtr norm_ptr = N.getExpandedValue(ss).getVals();
+                
+                if(numIndices == norm_ptr->size())
+                {
+                    for (int i = 0; i < m_triangles.size(); i++)
+                    {
+                        Tri &t = m_triangles[i];
+                        mesh.addNormal( toOf( (*norm_ptr)[t[0]] ) );
+                        mesh.addNormal( toOf( (*norm_ptr)[t[1]] ) );
+                        mesh.addNormal( toOf( (*norm_ptr)[t[2]] ) );
+                    }
+                }
+                else
+                    ofLogError("ofxAlembic::PolyMesh") << "indexed normal is not supported";
+            }
 			else
 			{
 				N3fArraySamplePtr norm_ptr = N.getExpandedValue(ss).getVals();
